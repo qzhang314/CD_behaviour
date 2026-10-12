@@ -1,0 +1,12 @@
+*.log
+*.out
+*.err
+*.tmp
+.DS_Store
+archive/
+archive_12_10_2026/
+archive_20_03_2026/
+figures/
+GREML/
+pheno/
+result/

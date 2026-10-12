@@ -37,24 +37,24 @@ bsub -J GRM_calc -w "done(GRM_data)" -q normal -o /lustre/scratch125/humgen/proj
 ## 2.2 estimate heritability
 mkdir GREML
 
-awk '{print $1,$2,$22}' pheno/ibdbr_pheno.txt > pheno/greml_pheno.txt
+awk '{print $1,$2,$25,$26,$27,$28,$29}' pheno/ibdbr_pheno.txt > pheno/greml_pheno.txt
 awk '{print $1,$2,$6,$7,$8,$9}' pheno/ibdbr_pheno.txt > pheno/greml_pcs.txt
-awk '{print $1,$2,$6,$7,$8,$9,$23}' pheno/ibdbr_pheno.txt > pheno/greml_qcov.txt
-awk '{print $1,$2,$4,$5,$12,$25}' pheno/ibdbr_pheno.txt > pheno/greml_ccov.txt
+awk '{print $1,$2,$6,$7,$8,$9,$30}' pheno/ibdbr_pheno.txt > pheno/greml_qcov.txt
+awk '{print $1,$2,$4,$5,$12,$32}' pheno/ibdbr_pheno.txt > pheno/greml_ccov.txt
 
 ### 2.2.1 with 4 PCs as covarites only
 mkdir GREML/log
 
 cov_type="pc_only"
-bsub -J GREML_${cov_type} -q normal -o GREML/log/GREML_${cov_type}.log -e GREML/log/GREML_${cov_type}.err -W 10:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/greml.sh ${cov_type}
+
+bsub -J GREML_${cov_type}[1-5] -q normal -o GREML/log/GREML_${cov_type}_%I.log -e GREML/log/GREML_${cov_type}_%I.err -W 10:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/greml.sh ${cov_type}
 
 ### 2.2.2 with 4 PCs and all other covariates
 cov_type="full_cov"
 
-bsub -J GREML_${cov_type} -q normal -o GREML/log/GREML_${cov_type}.log -e GREML/log/GREML_${cov_type}.err -W 10:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/greml.sh ${cov_type}
+bsub -J GREML_${cov_type}[1-5] -q normal -o GREML/log/GREML_${cov_type}_%I.log -e GREML/log/GREML_${cov_type}_%I.err -W 10:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/greml.sh ${cov_type}
 
 
-# based on the above result, I choose to not restricting the following-up time
 # baseline model fitting based on the phenotype data
 mkdir result
 
@@ -98,12 +98,23 @@ mkdir /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour
 
 plink2 --bfile /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/genotyped_data/QC/release_interval_ibdbioresource_Aug24/interval_ibdbioresource_postqc_hg19_nomonom_RefAlt_flip2_pruned_nolongLD_no_freq_discrep --keep ~/CD_behaviour/pheno/ibdbr_pheno.txt --maf 0.01 --write-snplist --out /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step1/comm_var_maf01
 
-### 3.1.1 with 4 PCs
-bsub -J regenie_step1_pc_only -q normal -o /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step1_pc_only.log -e /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step1_pc_only.err -W 10:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/regenie_step1.sh "pc_only"
+### 3.1.1 with 4 PCs as covariates
+phenotypes=("bev" "bev3to1" "bev2to1" "bev3to12" "bev2to13")
 
+for pheno in ${phenotypes[@]}
+do
+	mkdir /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step1/${pheno}
+	bsub -J regenie_step1_${pheno}_pc_only -q normal -o /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step1_${pheno}_pc_only.log -e /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step1_${pheno}_pc_only.err -W 10:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/regenie_step1.sh ${pheno} "pc_only"
+done
 
 ### 3.1.2 with 4 PCs and other covariates
-bsub -J regenie_step1_full_cov -q normal -o /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step1_full_cov.log -e /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step1_full_cov.err -W 10:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/regenie_step1.sh "full_cov"
+for pheno in ${phenotypes[@]}
+do
+        bsub -J regenie_step1_${pheno}_full_cov -q normal -o /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step1_${pheno}_full_cov.log -e /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step1_${pheno}_full_cov.err -W 10:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/regenie_step1.sh ${pheno} "full_cov"
+done
+
+
+
 
 ## 3.2 step 2, high quality common variants only (MAF > 1%, info > 0.3)
 mkdir /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step2
@@ -114,16 +125,22 @@ mkdir /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour
 cov_type="pc_only"
 mkdir /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step2/${cov_type}
 
-bsub -J regenie_step2_${cov_type}[1-23] -w "done(regenie_step1_pc_only)" -q long -o /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step2_${cov_type}_%I.log -e /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step2_${cov_type}_%I.err -W 40:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/regenie_step2.sh ${cov_type}
-
+for pheno in ${phenotypes[@]}
+do
+	mkdir /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step2/${cov_type}/${pheno}
+	bsub -J regenie_step2_${pheno}_${cov_type}[1-23] -w "done(regenie_step1_${pheno}_pc_only)" -q long -o /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step2_${pheno}_${cov_type}_%I.log -e /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step2_${pheno}_${cov_type}_%I.err -W 40:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/regenie_step2.sh ${pheno} ${cov_type}
+done
 
 ### 3.2.2 with 4 PCs and other covariates
 
 cov_type="full_cov"
 mkdir /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step2/${cov_type}
 
-bsub -J regenie_step2_${cov_type}[1-23] -w "done(regenie_step1_full_cov)" -q long -o /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step2_${cov_type}_%I.log -e /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step2_${cov_type}_%I.err -W 40:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/regenie_step2.sh ${cov_type}
-
+for pheno in ${phenotypes[@]}
+do
+        mkdir /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step2/${cov_type}/${pheno}
+        bsub -J regenie_step2_${pheno}_${cov_type}[1-23] -w "done(regenie_step1_${pheno}_pc_only)" -q long -o /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step2_${pheno}_${cov_type}_%I.log -e /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/log/regenie_step2_${pheno}_${cov_type}_%I.err -W 40:00 -M 20000 -R'select[mem>20000] rusage[mem=20000]' bash scripts/regenie_step2.sh ${pheno} ${cov_type}
+done
 
 ### liftover to b38, remove bad quality variant
 mkdir /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/QC

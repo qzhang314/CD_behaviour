@@ -1,6 +1,7 @@
-cov_type=$1
+pheno=$1
+cov_type=$2
 
-if [[ $1 == "pc_only" ]]
+if [[ ${cov_type} == "pc_only" ]]
 then
 	regenie \
 		--step 1 \
@@ -8,11 +9,11 @@ then
 		--extract /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step1/comm_var_maf01.snplist \
 		--covarFile ~/CD_behaviour/pheno/ibdbr_pheno.txt \
 		--phenoFile ~/CD_behaviour/pheno/ibdbr_pheno.txt \
-		--phenoCol bev \
+		--phenoCol ${pheno} \
 		--covarColList PC1,PC2,PC3,PC4 \
 		--bsize 1000 \
 		--bt --lowmem --loocv \
-		--out /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step1/pc_only
+		--out /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step1/${pheno}/${cov_type}
 
 else
 	regenie \
@@ -21,12 +22,12 @@ else
 		--extract /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step1/comm_var_maf01.snplist \
 		--covarFile ~/CD_behaviour/pheno/ibdbr_pheno.txt \
                 --phenoFile ~/CD_behaviour/pheno/ibdbr_pheno.txt \
-                --phenoCol bev \
+                --phenoCol ${pheno} \
                 --covarColList PC1,PC2,PC3,PC4,timeSinceDiag_5yrs \
                 --catCovarList smoker_type,location,location1,year_diag_section \
                 --bsize 1000 \
                 --bt --lowmem --loocv \
-                --out /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step1/full_cov
+                --out /lustre/scratch125/humgen/projects_v2/ibdgwas_bioresource/qz2/CD_behaviour/regenie/step1/${pheno}/${cov_type}
 
 fi
 

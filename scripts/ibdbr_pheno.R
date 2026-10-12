@@ -129,6 +129,13 @@ colnames(data)[3] <- "behaviour"
 
 data <- data[!is.na(data$behaviour),]
 data$bev <- as.double(data$behaviour>1)
+data$bev3to1 <- as.double(data$behaviour==3)
+data$bev3to1[which(data$behaviour==2)] <- NA
+data$bev2to1 <- as.double(data$behaviour==2)
+data$bev2to1[which(data$behaviour==3)] <- NA
+data$bev3to12 <- as.double(data$behaviour==3)
+data$bev2to13 <- as.double(data$behaviour==2)
+
 
 colnames(data)[1:2] <- c("FID","IID")
 

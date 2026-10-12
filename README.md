@@ -239,29 +239,4 @@ Rscript scripts/ukibdgc_validate.R
 Rscript scripts/ukibdgc_all_factor_effect.R
 
 
-# 7 GWAS on UKIBDGC
-
-## 7.1 step 1
-
-#MAF > 1%, missingness < 10%, HWE P > 1e−15 and linkage disequilibrium (LD) pruning (1,000 variant windows, 100 variant sliding windows and r2 <0.9). Exclude from step 1 any SNPs in high LD region.
-
-### 6.1.1 with 4 PCs
-
-### 6.1.2 with 4 PCs and covariates
-
-## 6.2 step 2, high quality common variants only (MAF > 1%, info > 0.3)
-
-### 6.2.1 with 4 PCs
-
-### 6.2.2 with 4 PCs and covariates
-
-# 7 GWAS meta-analysis with UKIBDGC
-
-# 8 prediction model
-
-## 8.1 build phenotype-based prediction model based on IBDBR samples
-
-## 8.2 validate model in UKIBDGC
-
-## 8.3 combine phenotype-based prediction model with PRS in UKIBDGC (10-cross validation) 
 
